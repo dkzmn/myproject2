@@ -131,8 +131,16 @@ def main() -> int:
 
     resolved_model_path = resolve_model_path(args.model_path, args.auto_export_dir)
     model = MusicGen.get_pretrained(resolved_model_path, device=args.device)
-    model.set_generation_params(duration=args.duration, top_k=args.top_k, top_p=0.0, temperature=args.temperature)
-
+    safe_stride = max(1.0, min(5.0, float(model.max_duration) - 0.5))
+    safe_duration = min(float(args.duration), float(model.max_duration))
+    model.set_generation_params(
+        duration=safe_duration,
+        top_k=args.top_k,
+        top_p=0.0,
+        temperature=args.temperature,
+        extend_stride=safe_stride,
+    )
+    
     for stem_name, prompt in prompts:
         prompt_text = prompt_to_text(prompt)
         wav = model.generate([prompt_text], progress=True)[0].cpu()

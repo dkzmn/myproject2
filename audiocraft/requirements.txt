@@ -1,5 +1,6 @@
 # please make sure you have already a pytorch install that is cuda enabled!
 # av==11.0.0
+dvc[s3]
 einops
 flashy>=0.0.1
 comet_ml
@@ -14,7 +15,7 @@ torch==2.1.0
 torchaudio>=2.0.0,<2.1.2
 huggingface_hub
 tqdm
-transformers>=4.31.0  # need Encodec there.
+transformers==4.38.2 #>=4.31.0  # need Encodec there.
 xformers<0.0.23
 demucs
 librosa
@@ -26,5 +27,6 @@ protobuf
 torchvision==0.16.0
 torchtext==0.16.0
 pesq
+pydantic<2
 pystoi
 torchdiffeq
