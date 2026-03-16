@@ -46,6 +46,13 @@ class MusicInfo(AudioInfo):
     moods: tp.Optional[list] = None
     keywords: tp.Optional[list] = None
     description: tp.Optional[str] = None
+    general_mood: tp.Optional[str] = None
+    genre_tags: tp.Optional[list] = None
+    lead_instrument: tp.Optional[str] = None
+    accompaniment: tp.Optional[str] = None
+    tempo_and_rhythm: tp.Optional[str] = None
+    vocal_presence: tp.Optional[str] = None
+    production_quality: tp.Optional[str] = None
     name: tp.Optional[str] = None
     instrument: tp.Optional[str] = None
     # original wav accompanying the metadata
@@ -78,11 +85,15 @@ class MusicInfo(AudioInfo):
             preprocess_func = get_bpm
         elif attribute == 'key':
             preprocess_func = get_musical_key
-        elif attribute in ['moods', 'keywords']:
+        elif attribute in ['moods', 'keywords', 'genre_tags']:
             preprocess_func = get_keyword_list
         elif attribute in ['genre', 'name', 'instrument']:
             preprocess_func = get_keyword
-        elif attribute in ['title', 'artist', 'description']:
+        elif attribute in [
+            'title', 'artist', 'description', 'general_mood',
+            'lead_instrument', 'accompaniment', 'tempo_and_rhythm',
+            'vocal_presence', 'production_quality'
+        ]:
             preprocess_func = get_string
         else:
             preprocess_func = None
@@ -95,7 +106,25 @@ class MusicInfo(AudioInfo):
         # allow a subset of attributes to not be loaded from the dictionary
         # these attributes may be populated later
         post_init_attributes = ['self_wav', 'joint_embed']
-        optional_fields = ['keywords']
+        optional_fields = [
+            'title',
+            'artist',
+            'key',
+            'bpm',
+            'genre',
+            'moods',
+            'keywords',
+            'description',
+            'name',
+            'instrument',
+            'general_mood',
+            'genre_tags',
+            'lead_instrument',
+            'accompaniment',
+            'tempo_and_rhythm',
+            'vocal_presence',
+            'production_quality',
+        ]
 
         for _field in fields(cls):
             if _field.name in post_init_attributes:
@@ -129,7 +158,11 @@ def augment_music_info_description(music_info: MusicInfo, merge_text_p: float = 
         MusicInfo: The MusicInfo with augmented textual description.
     """
     def is_valid_field(field_name: str, field_value: tp.Any) -> bool:
-        valid_field_name = field_name in ['key', 'bpm', 'genre', 'moods', 'instrument', 'keywords']
+        valid_field_name = field_name in [
+            'key', 'bpm', 'genre', 'moods', 'instrument', 'keywords',
+            'general_mood', 'genre_tags', 'lead_instrument', 'accompaniment',
+            'tempo_and_rhythm', 'vocal_presence', 'production_quality',
+        ]
         valid_field_value = field_value is not None and isinstance(field_value, (int, float, str, list))
         keep_field = random.uniform(0, 1) < drop_other_p
         return valid_field_name and valid_field_value and keep_field
