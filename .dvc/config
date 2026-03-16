@@ -1,0 +1,6 @@
+[core]
+    remote = storage
+['remote "storage"']
+    url = s3://hse-dla-hw4
+    endpointurl = https://storage.yandexcloud.net
+    region = ru-central1
