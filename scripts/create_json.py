@@ -87,9 +87,8 @@ def main() -> None:
 
     csv_path = Path("data/dataset.csv")
     output_root = Path("data")
-    prompt_path = Path("prompt.txt")
-    ollama_url = "http://localhost:11434"
-    client = Client(host=ollama_url)
+    prompt_path = Path("prompts/prompt_for_llm_1.txt")
+    client = Client(host="http://localhost:11434")
     system_prompt = prompt_path.read_text(encoding="utf-8").strip()
 
     rows = read_dataset_rows(csv_path)
