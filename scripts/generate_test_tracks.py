@@ -1,30 +1,14 @@
-#!/usr/bin/env python3
 import argparse
 import json
 from pathlib import Path
 from typing import Any
-
-import torch  # type: ignore[import-not-found]
-
-from audiocraft.data.audio import audio_write  # type: ignore[import-not-found]
-from audiocraft.models import MusicGen  # type: ignore[import-not-found]
-from audiocraft.utils import export  # type: ignore[import-not-found]
-
-
-REQUIRED_FIELDS: tuple[str, ...] = (
-    "description",
-    "general_mood",
-    "genre_tags",
-    "lead_instrument",
-    "accompaniment",
-    "tempo_and_rhythm",
-    "vocal_presence",
-    "production_quality",
-)
+import torch
+from audiocraft.data.audio import audio_write
+from audiocraft.models import MusicGen
+from audiocraft.utils import export
 
 
 def prompt_to_text(prompt: dict[str, Any]) -> str:
-    """Flatten structured prompt to training-like text format."""
     fields = [
         ("description", prompt["description"]),
         ("general_mood", prompt["general_mood"]),
@@ -39,38 +23,16 @@ def prompt_to_text(prompt: dict[str, Any]) -> str:
 
 
 def load_prompts(prompts_dir: Path) -> list[tuple[str, dict[str, Any]]]:
-    if not prompts_dir.exists() or not prompts_dir.is_dir():
-        raise FileNotFoundError(f"Prompts directory not found: {prompts_dir}")
-
     prompt_files = sorted(prompts_dir.glob("*.json"))
-    if not prompt_files:
-        raise FileNotFoundError(f"No .json prompt files found in: {prompts_dir}")
-
-    prompts: list[tuple[str, dict[str, Any]]] = []
+    prompts = []
     for path in prompt_files:
         with path.open("r", encoding="utf-8") as f:
             prompt = json.load(f)
-        if not isinstance(prompt, dict):
-            raise ValueError(f"Prompt file must contain JSON object: {path}")
-
-        missing = [field for field in REQUIRED_FIELDS if field not in prompt]
-        if missing:
-            raise ValueError(f"Prompt file {path} is missing required fields: {', '.join(missing)}")
-
-        if not isinstance(prompt.get("genre_tags"), list):
-            raise ValueError(f"'genre_tags' must be a list in prompt file: {path}")
-
         prompts.append((path.stem, prompt))
     return prompts
 
 
 def resolve_model_path(model_path: str, export_dir: Path) -> str:
-    """
-    Accept either:
-    - exported directory with state_dict.bin and compression_state_dict.bin
-    - training checkpoint *.th (auto-export)
-    - pretrained id (facebook/musicgen-small, etc.)
-    """
     p = Path(model_path)
     if not p.exists():
         return model_path
@@ -98,15 +60,11 @@ def resolve_model_path(model_path: str, export_dir: Path) -> str:
     return model_path
 
 
-def main() -> int:
+def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--model-path",
-        required=True,
-        help="Path to exported AudioCraft model directory or pretrained model name.",
-    )
+    parser.add_argument("--model-path", required=True)
     parser.add_argument("--output-dir", type=Path, default=Path("generated_test_tracks"))
-    parser.add_argument("--duration", type=int, default=12, help="Track duration in seconds (10-15 recommended).")
+    parser.add_argument("--duration", type=int, default=12)
     parser.add_argument("--device", type=str, default="cuda")
     parser.add_argument("--seed", type=int, default=1234)
     parser.add_argument("--top-k", type=int, default=250)
@@ -140,7 +98,7 @@ def main() -> int:
         temperature=args.temperature,
         extend_stride=safe_stride,
     )
-    
+
     for stem_name, prompt in prompts:
         prompt_text = prompt_to_text(prompt)
         wav = model.generate([prompt_text], progress=True)[0].cpu()
@@ -148,17 +106,8 @@ def main() -> int:
         stem = args.output_dir / stem_name
         audio_write(stem, wav, model.sample_rate, strategy="loudness")
 
-        with (args.output_dir / f"{stem_name}.json").open("w", encoding="utf-8") as f:
-            json.dump(prompt, f, ensure_ascii=False, indent=2)
-
-        with (args.output_dir / f"{stem_name}.txt").open("w", encoding="utf-8") as f:
-            f.write(prompt_text + "\n")
-
         print(f"[OK] {stem_name} generated")
-
-    print(f"Done. Files saved to: {args.output_dir.resolve()}")
-    return 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    main()

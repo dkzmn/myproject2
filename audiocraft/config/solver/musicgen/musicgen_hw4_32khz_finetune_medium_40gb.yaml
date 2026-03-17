@@ -1,6 +1,5 @@
 # @package __global__
 
-# Fine-tuning config for musicgen-medium on a 40GB GPU.
 defaults:
   - musicgen/default
   - /model: lm/musicgen_lm
@@ -20,7 +19,6 @@ deadlock:
   use: false
 
 dataset:
-  # 40GB-friendly baseline for medium model.
   batch_size: 2
   num_workers: 2
   segment_duration: 10

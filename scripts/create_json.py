@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from ollama import Client  # type: ignore[import-not-found]
+from ollama import Client
 
 
 REQUIRED_FIELDS = {
@@ -35,7 +35,6 @@ def read_dataset_rows(csv_path: Path) -> list[dict[str, str]]:
 def parse_json_object(text: str) -> dict[str, Any]:
     text = text.strip()
 
-    # First, try raw JSON.
     try:
         data = json.loads(text)
         if isinstance(data, dict):
@@ -43,7 +42,6 @@ def parse_json_object(text: str) -> dict[str, Any]:
     except json.JSONDecodeError:
         pass
 
-    # Fallback: extract first JSON object from response.
     start = text.find("{")
     end = text.rfind("}")
     if start == -1 or end == -1 or end <= start:
@@ -85,14 +83,9 @@ def ollama_chat_completion(client: Client, model: str, system_prompt: str, capti
     return response["message"]["content"]
 
 
-def main() -> int:
+def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--models",
-        nargs="+",
-        default=["llama3.1:8b"],
-        help="One or more Ollama model names.",
-    )
+    parser.add_argument("--models", nargs="+", default=["llama3.1:8b"],)
     parser.add_argument("--skip-existing", action="store_true")
     args = parser.parse_args()
 
@@ -152,8 +145,7 @@ def main() -> int:
             had_failures = True
 
     print("\nDone.")
-    return 1 if had_failures else 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    main()
