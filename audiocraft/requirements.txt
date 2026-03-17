@@ -24,8 +24,9 @@ gradio
 torchmetrics
 encodec
 protobuf
-torchvision==0.16.0
-torchtext==0.16.0
+# torchvision==0.16.0
+# torchtext==0.16.0
+torchvision==0.19.1
 pesq
 pydantic<2
 pystoi
