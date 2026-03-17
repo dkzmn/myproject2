@@ -65,10 +65,10 @@ def resolve_checkpoint_path(sig_or_path: tp.Union[Path, str], name: tp.Optional[
     Returns:
         Path, optional: Resolved checkpoint path, if it exists.
     """
-    from audiocraft import train
-    xps_root = train.main.dora.dir / 'xps'
     sig_or_path = str(sig_or_path)
     if sig_or_path.startswith('//sig/'):
+        from audiocraft import train
+        xps_root = train.main.dora.dir / 'xps'
         sig = sig_or_path[len('//sig/'):]
         path = xps_root / sig
     else:

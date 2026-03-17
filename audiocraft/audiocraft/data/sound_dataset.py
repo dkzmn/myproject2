@@ -144,7 +144,7 @@ class SoundDataset(InfoAudioDataset):
         info_data = info.to_dict()
         info_path = self._get_info_path(info.meta.path)
         if Path(info_path).exists():
-            with open(info_path, 'r') as json_file:
+            with open(info_path, 'r', encoding='utf-8') as json_file:
                 sound_data = json.load(json_file)
                 sound_data.update(info_data)
                 sound_info = SoundInfo.from_dict(sound_data, fields_required=self.info_fields_required)

@@ -155,6 +155,7 @@ class StandardSolver(ABC, flashy.BaseSolver):
             if experiment_name:
                 self.comet_experiment.set_name(experiment_name)
             if tags:
+                tags = list(tags)
                 self.comet_experiment.add_tags(tags)
             self.comet_experiment.log_other('xp_sig', self.xp.sig)
             self.comet_experiment.log_other('xp_folder', str(self.xp.folder))
